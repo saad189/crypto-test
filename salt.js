@@ -1,5 +1,5 @@
 const { scryptSync, randomBytes, timingSafeEqual } = require("crypto");
-const { users } = require("./models");
+const users = [];
 function signup(email, password) {
   const salt = randomBytes(16).toString("hex");
   const hashedPassword = scryptSync(password, salt, 64).toString("hex");
@@ -24,4 +24,4 @@ function login(email, password) {
   return match ? "login succesful!" : "login failed!";
 }
 
-export default { login, signup };
+module.exports = { login, signup };
