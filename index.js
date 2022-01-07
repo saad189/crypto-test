@@ -5,40 +5,40 @@ const {
   encryptPassword,
 } = require("./symmetric-encrypt");
 
+const fs = require("fs");
+
 const generatePair = require("./keypair");
 
 const prompt = require("prompt-sync")({ sigint: true });
 
-const users = [
-  {
-    name: "Saad",
-    email: "saad18910@hotmail.com",
-    password:
-      "lw+X4sl8ATha/GpMIMAKhA==:hCLUjrf2Q30cWOH7D4eGfHSdYfznbprENQqkqs43cBhEZ3k539iZpgGSSbncqb9rRPYoU+VBnakrr2xAxN552g==",
-    selectedAlgo: 1,
-  },
-];
+let users = [];
+const userFileName = "userInfo.txt";
 
-function main() {
-  console.log(
-    "Using Salt:",
-    checkPasswordMatch("12345", createHashedPasswordWithSalt("12345"))
-  );
-  console.log(
-    "Using HMAC:",
-    checkPasswordMatchHMAC("12345", createHMACEncryption("12345"))
-  );
+function simpleReadFileAsync(filePath) {
+  try {
+    const data = fs.readFileSync(filePath, { encoding: "utf-8", flag: "r" });
+    if (data) {
+      users = JSON.parse(data);
+    }
+  } catch (error) {
+    fs.writeFile(filePath, "[]", (err) => {
+      if (err) console.error(err);
+      console.log("Created Empty File");
+    });
+  }
+}
 
-  console.log(
-    "Using Symmetric Encryption:",
-    checkPasswordMatchSymmteric("12345", encryptPassword("12345"))
-  );
+function WriteDataToFile() {
+  fs.writeFile("userInfo.txt", JSON.stringify(users), (err) => {
+    if (err) console.error(err);
+    console.log("Written Data to File");
+  });
 }
 
 function InitialInformation(continued) {
   console.log("\n");
   if (!continued) {
-    console.log("Hello, This is Passowrd Comparison Program!");
+    console.log("Hello, This is Password Comparison Program!");
   }
 
   console.log("Please Select an option by pressing its respective number:");
@@ -52,10 +52,9 @@ function InitialInformation(continued) {
   options.forEach((o, i) => console.log(`${i + 1}. ${o}`));
 }
 
-main();
-
 function StartProgram() {
   console.clear();
+  simpleReadFileAsync(userFileName);
   let inputNumber;
 
   while (inputNumber != 5) {
@@ -79,7 +78,8 @@ function SelectOptions(selected) {
     case 4:
       console.log("Not Implemented Yet!");
       break;
-
+    case 5:
+      WriteDataToFile();
     default:
       break;
   }
@@ -143,9 +143,9 @@ function LoginUser() {
   );
 }
 
-function checkUserLogin(email, passowrd) {
+function checkUserLogin(email, Password) {
   const user = users.find((u) => u.email === email);
-  return comparePasswords(passowrd, user.password, Number(user.selectedAlgo));
+  return comparePasswords(Password, user.password, Number(user.selectedAlgo));
 }
 
 function encryptWithAlgo(password, selectedAlgo) {
