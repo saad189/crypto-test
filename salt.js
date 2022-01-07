@@ -1,5 +1,21 @@
 const { scryptSync, randomBytes, timingSafeEqual } = require("crypto");
 const users = [];
+
+const encoding = "base64";
+function createHashedPasswordWithSalt(password) {
+  const salt = randomBytes(16).toString(encoding);
+  const hashedPassword = scryptSync(password, salt, 64).toString(encoding);
+  return `${salt}:${hashedPassword}`;
+}
+
+function checkPasswordMatch(loginPassword, savedPassword) {
+  const [salt, key] = savedPassword.split(":");
+  const hashedBuffer = scryptSync(loginPassword, salt, 64);
+  const keyBuffer = Buffer.from(key, encoding);
+  const match = timingSafeEqual(hashedBuffer, keyBuffer);
+
+  return match;
+}
 function signup(email, password) {
   const salt = randomBytes(16).toString("hex");
   const hashedPassword = scryptSync(password, salt, 64).toString("hex");
@@ -24,4 +40,9 @@ function login(email, password) {
   return match ? "login succesful!" : "login failed!";
 }
 
-module.exports = { login, signup };
+module.exports = {
+  login,
+  signup,
+  createHashedPasswordWithSalt,
+  checkPasswordMatch,
+};
