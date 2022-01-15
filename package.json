@@ -13,5 +13,8 @@
     "crypto": "^1.0.1",
     "grep": "^0.1.0",
     "prompt-sync": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/prompt-sync": "^4.1.1"
   }
 }
